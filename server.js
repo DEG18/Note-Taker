@@ -59,8 +59,20 @@ app.post("/api/notes", (req, res) => {
 //  This means you'll need to find a way to give each note a unique `id` when it's saved. In order to delete a note,
 //  you'll need to read all notes from the `db.json` file, remove the note with the given `id` property,
 //  and then rewrite the notes to the `db.json` file.
+
 app.delete("/api/notes/:id", (req, res) => {
-  const note = req.params.id;
+  const id = req.params.id;
+  console.log(id);
+  fs.readFile("./db/db.json", "utf8", (err, data) => {
+    if (err) {
+      throw err;
+    } else {
+      let note = JSON.parse(data);
+      note = note.filter((eachNote) => eachNote.id !== id);
+      fs.writeFileSync("./db/db.json", JSON.stringify(note));
+      res.json(note);
+    }
+  });
 });
 
 app.listen(PORT, function () {
