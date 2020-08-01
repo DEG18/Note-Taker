@@ -4,7 +4,7 @@ const express = require("express");
 const bodyParser = require("body-parser");
 const path = require("path");
 const fs = require("fs");
-const { throws, notStrictEqual } = require("assert");
+const { throws } = require("assert");
 
 // Sets up the Express App
 // =============================================================
@@ -50,7 +50,7 @@ app.post("/api/notes", (req, res) => {
       let note = JSON.parse(data);
       note.unshift(req.body);
       res.json(note);
-      fs.writeFileSync("./db/db.json", JSON.stringify(note));
+      fs.writeFileSync("./db/db.json", JSON.stringify(note), "utf8");
     }
   });
 });
@@ -61,18 +61,21 @@ app.post("/api/notes", (req, res) => {
 //  and then rewrite the notes to the `db.json` file.
 
 app.delete("/api/notes/:id", (req, res) => {
-  const id = req.params.id;
-  console.log(id);
-  fs.readFile("./db/db.json", "utf8", (err, data) => {
-    if (err) {
-      throw err;
-    } else {
-      let note = JSON.parse(data);
-      note = note.filter((eachNote) => eachNote.id !== id);
-      fs.writeFileSync("./db/db.json", JSON.stringify(note));
-      res.json(note);
-    }
-  });
+  // const id = req.params.id;
+  let note = JSON.parse(fs.readFileSync("./db/db.json", "utf8"));
+  note = note.filter((notes) => notes.id !== req.params.id);
+  res.json(note);
+  fs.writeFile("./db/db.json", JSON.stringify(note));
+  // fs.readFile("./db/db.json", "utf8", (err, eachNote) => {
+  //   if (err) {
+  //     throw err;
+  //   } else {
+  //     let note = JSON.parse(eachNote);
+  //     note = note.filter((notes) => notes.id !== req.params.id);
+  //     res.json(note);
+  //     fs.writeFile("./db/db.json", JSON.stringify(note), "utf8");
+  //   }
+  // });
 });
 
 app.listen(PORT, function () {
