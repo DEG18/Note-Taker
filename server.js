@@ -4,6 +4,7 @@ const express = require("express");
 const bodyParser = require("body-parser");
 const path = require("path");
 const fs = require("fs");
+const { parse } = require("path");
 // const { throws } = require("assert");
 
 // Sets up the Express App
@@ -64,16 +65,14 @@ app.post("/api/notes", async (req, res) => {
 //  and then rewrite the notes to the `db.json` file.
 
 app.delete("/api/notes/:id", async (req, res) => {
-  let id = req.params.id;
+  let id = parseInt(req.params.id);
+  // let id = req.params.id;
   console.log(id);
-  let note = JSON.parse(fs.readFileSync("./db/db.json", "utf8"));
+  console.log(typeof id);
+  const note = await JSON.parse(fs.readFileSync("db/db.json", "utf8"));
   console.log(note);
-  const newNote = note.filter(function (notesobj) {
-    console.log(notesobj);
-    console.log(notesobj.id);
-    notesobj.id !== req.params.id;
-  });
-  fs.writeFileSync("./db/db.json", JSON.stringify(newNote));
+  let newNote = note.filter((notesobj) => notesobj.id !== id);
+  await fs.writeFileSync("db/db.json", JSON.stringify(newNote));
   res.json(newNote);
 });
 
